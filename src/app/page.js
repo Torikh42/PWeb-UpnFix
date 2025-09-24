@@ -1,102 +1,164 @@
+import Link from "next/link";
 import Image from "next/image";
+import { ShieldCheck, MessageSquare, Send } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+    <div className="bg-white text-gray-800">
+      {/* Hero Section */}
+      <section className="relative h-[60vh] md:h-[70vh] lg:h-[80vh] flex items-center justify-center text-center text-white px-6">
+        {/* Background Image */}
         <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
+          src="/assets/UPN1.jpg"
+          alt="Kampus UPN Veteran Jakarta"
+          fill
           priority
+          className="object-cover"
         />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        {/* Overlay supaya teks lebih terbaca */}
+        <div className="absolute inset-0 bg-black/40" />
+
+        {/* Content */}
+        <div className="relative z-10 max-w-3xl mx-auto">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-4 drop-shadow-md">
+            Solusi Cepat Pelaporan Kampus
+          </h1>
+          <p className="text-lg md:text-xl drop-shadow-sm mb-8">
+            Laporkan kerusakan fasilitas dengan mudah dan pantau proses
+            perbaikannya secara transparan untuk UPNVJ yang lebih baik.
+          </p>
+          <Link
+            href="/report/create"
+            className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition-transform transform hover:scale-105"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            Buat Laporan Sekarang
+          </Link>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="py-16 md:py-24 bg-gray-50">
+        <div className="container mx-auto px-6 text-center">
+          <h2 className="text-3xl font-bold mb-3">Bagaimana Caranya?</h2>
+          <p className="text-gray-600 max-w-xl mx-auto mb-12">
+            Hanya butuh tiga langkah mudah untuk membuat perubahan.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div className="flex flex-col items-center">
+              <div className="bg-indigo-100 text-indigo-600 rounded-full p-5 mb-4">
+                <MessageSquare size={32} />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">1. Laporkan</h3>
+              <p className="text-gray-600">
+                Isi formulir laporan dengan detail kerusakan dan unggah foto
+                jika diperlukan.
+              </p>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="bg-indigo-100 text-indigo-600 rounded-full p-5 mb-4">
+                <Send size={32} />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">2. Diproses</h3>
+              <p className="text-gray-600">
+                Laporan Anda akan diverifikasi dan diteruskan ke pihak terkait
+                untuk ditindaklanjuti.
+              </p>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="bg-indigo-100 text-indigo-600 rounded-full p-5 mb-4">
+                <ShieldCheck size={32} />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">3. Selesai</h3>
+              <p className="text-gray-600">
+                Pantau status laporan Anda hingga masalah terselesaikan dan
+                kampus kembali nyaman.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Gallery Section */}
+      <section className="py-16 md:py-24">
+        <div className="container mx-auto px-6">
+          <h2 className="text-3xl font-bold text-center mb-12">
+            Contoh Laporan dari Rekan Mahasiswa
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="group relative overflow-hidden rounded-lg shadow-lg transform hover:-translate-y-2 transition-transform duration-300">
+              <Image
+                src="/assets/problem1.jpg"
+                alt="Kerusakan fasilitas kampus"
+                width={500}
+                height={350}
+                className="object-cover w-full h-full"
+              />
+              <div className="absolute inset-0 bg-black/40 flex items-end p-4">
+                <p className="text-white font-semibold">
+                  WC di Toilet Masjid Rusak
+                </p>
+              </div>
+            </div>
+            <div className="group relative overflow-hidden rounded-lg shadow-lg transform hover:-translate-y-2 transition-transform duration-300">
+              <Image
+                src="/assets/Jendela-Parkir.jpg"
+                alt="Jendela pecah di area parkir"
+                width={500}
+                height={350}
+                className="object-cover w-full h-full"
+              />
+              <div className="absolute inset-0 bg-black/40 flex items-end p-4">
+                <p className="text-white font-semibold">
+                  Lahan Parkiran yang Selalu Penuh
+                </p>
+              </div>
+            </div>
+            <div className="group relative overflow-hidden rounded-lg shadow-lg transform hover:-translate-y-2 transition-transform duration-300">
+              <Image
+                src="/assets/UPN2.webp"
+                alt="Suasana kampus UPN"
+                width={500}
+                height={350}
+                className="object-cover w-full h-full"
+              />
+              <div className="absolute inset-0 bg-black/40 flex items-end p-4">
+                <p className="text-white font-semibold">
+                  Menjaga keindahan dan fungsi fasilitas bersama.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA Section */}
+      <section className="bg-indigo-700 text-white">
+        <div className="container mx-auto px-6 py-16 text-center">
+          <h2 className="text-3xl font-bold mb-4">
+            Siap Membuat Kampus Lebih Baik?
+          </h2>
+          <p className="max-w-xl mx-auto mb-8">
+            Setiap laporan Anda sangat berarti untuk kenyamanan kita bersama.
+            Jangan ragu, laporkan sekarang!
+          </p>
+          <Link
+            href="/report/create"
+            className="bg-white text-indigo-700 font-bold py-3 px-8 rounded-lg text-lg hover:bg-gray-200 transition-transform transform hover:scale-105"
+          >
+            Laporkan Masalah
+          </Link>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-800 text-white py-6">
+        <div className="container mx-auto px-6 text-center text-sm">
+          <p>&copy; {new Date().getFullYear()} UPNFix. All rights reserved.</p>
+          <p className="mt-1 text-gray-400">
+            Sebuah inisiatif untuk UPN Veteran Jakarta.
+          </p>
+        </div>
       </footer>
     </div>
   );
