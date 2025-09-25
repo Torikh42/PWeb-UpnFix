@@ -44,7 +44,6 @@ export default function MobileMenuToggle({ user }) {
 
   return (
     <>
-      {/* Mobile menu button */}
       <button
         onClick={toggleMenu}
         className="p-2 rounded-lg text-gray-600 hover:text-indigo-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-200"
@@ -52,23 +51,18 @@ export default function MobileMenuToggle({ user }) {
       >
         {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
       </button>
-
-      {/* Mobile menu overlay */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-opacity-50 z-40 md:hidden"
           onClick={closeMenu}
         />
       )}
-
-      {/* Mobile menu */}
       <div
         className={`fixed top-16 right-0 w-80 max-w-sm bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out md:hidden ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         <div className="p-6">
-          {/* User info section */}
           {user && (
             <div className="flex items-center space-x-3 pb-4 mb-4 border-b border-gray-200">
               <div className="flex-shrink-0">
@@ -85,7 +79,6 @@ export default function MobileMenuToggle({ user }) {
             </div>
           )}
 
-          {/* Navigation links */}
           <div className="space-y-2">
             <Link
               href="/reports"

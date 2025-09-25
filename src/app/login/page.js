@@ -34,7 +34,7 @@ export default function LoginPage() {
       }
 
       router.push("/");
-      router.refresh(); // Penting untuk memuat ulang state server
+      router.refresh();
     } catch (err) {
       setError(err.message);
     } finally {

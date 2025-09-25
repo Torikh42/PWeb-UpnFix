@@ -77,7 +77,7 @@ export default function CreateReportPage() {
       }
 
       router.push("/");
-      router.refresh(); // Refresh halaman untuk melihat laporan baru
+      router.refresh();
     } catch (err) {
       setError(err.message);
     } finally {

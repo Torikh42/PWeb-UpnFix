@@ -1,10 +1,6 @@
-// scripts/init-db.js
-
-// Import pustaka yang diperlukan
 const mysql = require("mysql2/promise");
-require("dotenv").config(); // Muat environment variables dari root
+require("dotenv").config();
 
-// Definisikan skema SQL dalam sebuah string
 const schemaSQL = `
   CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -34,12 +30,9 @@ const schemaSQL = `
   );
 `;
 
-// Fungsi utama untuk menjalankan inisialisasi
 const initializeDatabase = async () => {
   let connection;
   try {
-    // Buat koneksi ke database.
-    // multipleStatements: true diperlukan untuk menjalankan beberapa query sekaligus.
     const dbUrl = new URL(process.env.DATABASE_URL);
     connection = await mysql.createConnection({
       host: dbUrl.hostname,
@@ -50,18 +43,13 @@ const initializeDatabase = async () => {
     });
 
     console.log("Successfully connected to the database.");
-
-    // Jalankan query untuk membuat tabel
     console.log("Creating tables...");
     await connection.query(schemaSQL);
     console.log("Tables created successfully!");
   } catch (error) {
-    // Tangani error jika terjadi
     console.error("Failed to initialize database:", error.message);
-    // Keluar dari proses dengan status error
     process.exit(1);
   } finally {
-    // Pastikan koneksi selalu ditutup, baik berhasil maupun gagal
     if (connection) {
       console.log("Closing database connection.");
       await connection.end();
@@ -69,5 +57,4 @@ const initializeDatabase = async () => {
   }
 };
 
-// Panggil fungsi utama
 initializeDatabase();

@@ -6,7 +6,6 @@ import Link from "next/link";
 import DeleteButton from '@/components/DeleteButton';
 import { MapPin, Calendar, FolderSearch } from "lucide-react";
 
-// Fungsi untuk mengambil data laporan dari database (tidak ada perubahan)
 async function getMyReports() {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
@@ -25,7 +24,6 @@ async function getMyReports() {
   }
 }
 
-// Komponen untuk status badge (desain sedikit disempurnakan)
 const StatusBadge = ({ status }) => {
   const baseClasses = "px-3 py-1 text-xs font-bold rounded-full tracking-wide";
   const statusClasses = {
@@ -54,7 +52,6 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        {/* Conditional Content */}
         {reports.length === 0 ? (
           <div className="text-center py-20 px-8 bg-white rounded-xl shadow-lg border border-gray-200">
             <FolderSearch className="mx-auto h-24 w-24 text-gray-300" />

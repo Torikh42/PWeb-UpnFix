@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
 import {
   MapPin,
@@ -10,8 +10,6 @@ import {
   FolderSearch,
   X,
 } from "lucide-react";
-
-// --- Helper Functions ---
 
 function formatTimeAgo(dateString) {
   if (!dateString) return "";
@@ -28,7 +26,6 @@ function formatTimeAgo(dateString) {
   return `${days} hari yang lalu`;
 }
 
-// Komponen untuk status badge
 const StatusBadge = ({ status }) => {
   const baseClasses = "px-3 py-1 text-xs font-bold rounded-full tracking-wide";
   const statusClasses = {
@@ -47,19 +44,14 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-// --- Main Component ---
-
 export default function FeedsPage() {
   const [reports, setReports] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-
-  // State untuk filter
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
-  // Efek untuk mengambil data laporan
   useEffect(() => {
     const fetchReports = async () => {
       setIsLoading(true);
@@ -76,51 +68,68 @@ export default function FeedsPage() {
         setIsLoading(false);
       }
     };
+
     fetchReports();
   }, []);
+  const filteredReports = useMemo(() => {
+    return reports.filter((report) => {
+      const searchTermLower = searchTerm.toLowerCase();
+      const matchesSearch =
+        report.title.toLowerCase().includes(searchTermLower) ||
+        report.description.toLowerCase().includes(searchTermLower) ||
+        report.location.toLowerCase().includes(searchTermLower) ||
+        report.full_name.toLowerCase().includes(searchTermLower);
 
-  // Logika untuk filter laporan
-  const filteredReports = reports.filter((report) => {
-    const searchTermLower = searchTerm.toLowerCase();
-    const matchesSearch =
-      report.title.toLowerCase().includes(searchTermLower) ||
-      report.description.toLowerCase().includes(searchTermLower) ||
-      report.location.toLowerCase().includes(searchTermLower) ||
-      report.full_name.toLowerCase().includes(searchTermLower);
+      const matchesStatus =
+        statusFilter === "ALL" || report.status === statusFilter;
 
-    const matchesStatus =
-      statusFilter === "ALL" || report.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [reports, searchTerm, statusFilter]);
+  const handleSearchChange = useCallback((e) => {
+    setSearchTerm(e.target.value);
+  }, []);
 
-    return matchesSearch && matchesStatus;
-  });
+  const handleStatusChange = useCallback((e) => {
+    setStatusFilter(e.target.value);
+  }, []);
 
-  // Komponen Panel Filter (untuk reusability)
-  const FilterPanel = () => (
-    <div className="space-y-6">
-      <div className="relative">
-        <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-        <input
-          type="text"
-          placeholder="Cari laporan..."
-          className="pl-10 w-full py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-gray-900"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+  const toggleFilter = useCallback(() => {
+    setIsFilterOpen((prev) => !prev);
+  }, []);
+
+  const closeFilter = useCallback(() => {
+    setIsFilterOpen(false);
+  }, []);
+  const FilterPanel = useMemo(
+    () => (
+      <div className="space-y-6">
+        <div className="relative">
+          <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Cari laporan..."
+            className="pl-10 w-full py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-gray-900"
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+        </div>
+        <div>
+          <label className="text-sm font-semibold text-gray-700">Status</label>
+          <select
+            value={statusFilter}
+            onChange={handleStatusChange}
+            className="mt-1.5 w-full py-2 pl-3 pr-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none appearance-none text-gray-900"
+          >
+            <option value="ALL">Semua Status</option>
+            <option value="PENDING">Pending</option>
+            <option value="DIPROSES">Diproses</option>
+            <option value="SELESAI">Selesai</option>
+          </select>
+        </div>
       </div>
-      <div>
-        <label className="text-sm font-semibold text-gray-700">Status</label>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="mt-1.5 w-full py-2 pl-3 pr-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none appearance-none text-gray-900"
-        >
-          <option value="ALL">Semua Status</option>
-          <option value="PENDING">Pending</option>
-          <option value="DIPROSES">Diproses</option>
-          <option value="SELESAI">Selesai</option>
-        </select>
-      </div>
-    </div>
+    ),
+    [searchTerm, statusFilter, handleSearchChange, handleStatusChange]
   );
 
   if (isLoading && reports.length === 0) {
@@ -141,12 +150,10 @@ export default function FeedsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* --- Mobile Filter Drawer --- */}
       {isFilterOpen && (
-        // PERUBAHAN DI SINI: kelas bg-black bg-opacity-50 dihapus
         <div
-          className="fixed inset-0 z-30 lg:hidden"
-          onClick={() => setIsFilterOpen(false)}
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          onClick={closeFilter}
         ></div>
       )}
       <div
@@ -158,27 +165,23 @@ export default function FeedsPage() {
           <h2 className="text-2xl font-bold flex items-center">
             <SlidersHorizontal className="mr-3" /> Filter
           </h2>
-          <button onClick={() => setIsFilterOpen(false)} className="p-1">
+          <button onClick={closeFilter} className="p-1">
             <X className="h-6 w-6 text-gray-600" />
           </button>
         </div>
-        <FilterPanel />
+        {FilterPanel}
       </div>
-
-      {/* --- Desktop Sidebar Filter --- */}
       <aside className="w-72 p-6 border-r bg-white h-screen sticky top-0 hidden lg:block">
         <h2 className="text-2xl font-bold mb-6 flex items-center text-gray-900">
           <SlidersHorizontal className="mr-3" /> Filter Laporan
         </h2>
-        <FilterPanel />
+        {FilterPanel}
       </aside>
 
-      {/* --- Main Content Feed --- */}
       <main className="flex-1 p-4 sm:p-6 lg:p-8">
-        {/* Tombol Filter untuk Mobile */}
         <div className="lg:hidden mb-4">
           <button
-            onClick={() => setIsFilterOpen(true)}
+            onClick={toggleFilter}
             className="w-full flex items-center justify-center py-2.5 px-4 border border-gray-300 rounded-lg bg-white text-gray-700 font-semibold shadow-sm"
           >
             <SlidersHorizontal className="mr-2 h-5 w-5" />

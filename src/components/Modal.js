@@ -12,7 +12,7 @@ export default function Modal({ isOpen, onClose, children }) {
     >
       <div
         className="bg-white rounded-lg shadow-xl w-full max-w-md relative transform transition-all duration-300 ease-in-out scale-95 opacity-0 animate-fade-in-scale"
-        onClick={(e) => e.stopPropagation()} // Mencegah modal tertutup saat konten di dalam di-klik
+        onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}

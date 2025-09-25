@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2, Loader2 } from "lucide-react";
-import ConfirmDialog from "./ConfirmDialog"; // Import komponen baru
+import ConfirmDialog from "./ConfirmDialog";
 
 export default function DeleteButton({ reportId }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false); // State untuk modal
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const executeDelete = async () => {
     setIsLoading(true);
@@ -20,11 +20,8 @@ export default function DeleteButton({ reportId }) {
         throw new Error(data.error || "Gagal menghapus laporan");
       }
 
-      // Refresh halaman untuk memperbarui daftar laporan
       router.refresh();
     } catch (error) {
-      // Untuk saat ini kita masih gunakan alert untuk error,
-      // ini bisa diganti dengan komponen notifikasi/toast kustom di lain waktu.
       alert(error.message);
       setIsLoading(false);
     }
@@ -33,7 +30,7 @@ export default function DeleteButton({ reportId }) {
   return (
     <>
       <button
-        onClick={() => setIsConfirmOpen(true)} // Buka modal saat di-klik
+        onClick={() => setIsConfirmOpen(true)}
         disabled={isLoading}
         className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-100 rounded-full transition-colors disabled:cursor-not-allowed"
         title="Hapus Laporan"

@@ -4,7 +4,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import db from "../../../../lib/db";
 
-// Skema validasi menggunakan Joi
 const schema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().required(),
@@ -14,7 +13,6 @@ export async function POST(request) {
   try {
     const body = await request.json();
 
-    // 1. Validasi input
     const { error, value } = schema.validate(body);
     if (error) {
       return NextResponse.json(
@@ -25,7 +23,6 @@ export async function POST(request) {
 
     const { email, password } = value;
 
-    // 2. Cari pengguna berdasarkan email
     const [users] = await db.query("SELECT * FROM users WHERE email = ?", [
       email,
     ]);
@@ -33,13 +30,12 @@ export async function POST(request) {
     if (users.length === 0) {
       return NextResponse.json(
         { error: "Invalid email or password" },
-        { status: 401 } // 401 Unauthorized
+        { status: 401 }
       );
     }
 
     const user = users[0];
 
-    // 3. Bandingkan password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return NextResponse.json(
@@ -48,7 +44,6 @@ export async function POST(request) {
       );
     }
 
-    // 4. Buat JWT
     const payload = {
       id: user.id,
       email: user.email,
@@ -56,10 +51,9 @@ export async function POST(request) {
     };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: "1d", // Token berlaku selama 1 hari
+      expiresIn: "1d",
     });
 
-    // Hapus password dari objek user sebelum mengirim respons
     delete user.password;
 
     const response = NextResponse.json({
@@ -67,13 +61,12 @@ export async function POST(request) {
       user,
     });
 
-    // Atur token sebagai httpOnly cookie
     response.cookies.set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV !== "development",
       sameSite: "strict",
       path: "/",
-      maxAge: 60 * 60 * 24, // 1 hari
+      maxAge: 60 * 60 * 24,
     });
 
     return response;

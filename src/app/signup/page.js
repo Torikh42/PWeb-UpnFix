@@ -19,7 +19,6 @@ export default function SignUpPage() {
     setIsLoading(true);
     setError(null);
 
-    // Validasi password minimal 6 karakter
     if (password.length < 6) {
       setError("Password harus memiliki minimal 6 karakter.");
       setIsLoading(false);
@@ -40,7 +39,6 @@ export default function SignUpPage() {
         );
       }
 
-      // Redirect to login page after successful signup
       router.push("/login");
     } catch (err) {
       setError(err.message);
@@ -52,7 +50,6 @@ export default function SignUpPage() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
       <div className="flex flex-col md:flex-row w-full max-w-4xl lg:max-w-5xl bg-white shadow-2xl rounded-xl overflow-hidden">
-        {/* Kolom Gambar */}
         <div className="hidden md:flex md:w-1/2 overflow-hidden relative">
           <Image
             src="/assets/UPN2.webp"
@@ -63,7 +60,6 @@ export default function SignUpPage() {
           />
         </div>
 
-        {/* Kolom Form */}
         <div className="w-full md:w-1/2 p-8 sm:p-10 lg:p-12 flex items-center justify-center">
           <div className="w-full max-w-md">
             <form className="space-y-5" onSubmit={handleSubmit}>

@@ -6,9 +6,8 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
     const category = searchParams.get("category");
-    const sortBy = searchParams.get("sortBy") || "newest"; // Default sort by newest
+    const sortBy = searchParams.get("sortBy") || "newest";
 
-    // Start building the query
     let query = `
       SELECT 
         reports.*, 
@@ -32,7 +31,6 @@ export async function GET(request) {
       query += " WHERE " + whereClauses.join(" AND ");
     }
 
-    // Add sorting
     query += ` ORDER BY reports.created_at ${
       sortBy === "oldest" ? "ASC" : "DESC"
     }`;

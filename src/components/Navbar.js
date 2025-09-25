@@ -39,7 +39,7 @@ export default async function Navbar() {
             {/* Navigation Links */}
             <div className="flex items-center space-x-6">
               <Link
-                href="/reports" // Mengarahkan ke /feeds, bukan /reports
+                href="/reports"
                 className="text-gray-700 hover:text-indigo-600 font-medium transition-colors duration-200 relative group"
               >
                 Laporan Publik
@@ -60,9 +60,7 @@ export default async function Navbar() {
             {/* User Section */}
             <div className="flex items-center space-x-4 pl-6 border-l border-gray-200">
               {user ? (
-                // Logged in user
                 <>
-                  {/* PERUBAHAN DI SINI: Layout diubah dan kelas truncate/max-w dihapus */}
                   <div className="text-sm text-gray-600">
                     Halo,{" "}
                     <span className="font-semibold text-gray-800">
@@ -78,7 +76,6 @@ export default async function Navbar() {
                   <LogoutButton />
                 </>
               ) : (
-                // Guest user
                 <>
                   <Link
                     href="/login"

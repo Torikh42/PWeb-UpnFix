@@ -15,8 +15,6 @@ export default function Home() {
           priority
           className="object-cover"
         />
-
-        {/* Overlay supaya teks lebih terbaca */}
         <div className="absolute inset-0 bg-black/40" />
 
         {/* Content */}
