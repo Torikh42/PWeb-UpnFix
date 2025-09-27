@@ -24,7 +24,6 @@ export default async function Navbar() {
     <nav className="bg-white shadow-lg sticky top-0 z-50 border-b border-gray-100">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
           <div className="flex items-center">
             <Link
               href="/"
@@ -34,9 +33,7 @@ export default async function Navbar() {
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {/* Navigation Links */}
             <div className="flex items-center space-x-6">
               <Link
                 href="/reports"
@@ -48,7 +45,9 @@ export default async function Navbar() {
 
               {user && (
                 <Link
-                  href="/dashboard"
+                  href={
+                    user.role === "ADMIN" ? "/admin/dashboard" : "/dashboard"
+                  }
                   className="text-gray-700 hover:text-indigo-600 font-medium transition-colors duration-200 relative group"
                 >
                   Dashboard
@@ -57,7 +56,6 @@ export default async function Navbar() {
               )}
             </div>
 
-            {/* User Section */}
             <div className="flex items-center space-x-4 pl-6 border-l border-gray-200">
               {user ? (
                 <>
@@ -93,8 +91,6 @@ export default async function Navbar() {
               )}
             </div>
           </div>
-
-          {/* Mobile menu button */}
           <div className="md:hidden">
             <MobileMenuToggle user={user} />
           </div>

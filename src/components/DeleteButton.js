@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Trash2, Loader2 } from "lucide-react";
 import ConfirmDialog from "./ConfirmDialog";
 
-export default function DeleteButton({ reportId }) {
+export default function DeleteButton({ reportId, onReportDeleted }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -19,11 +19,17 @@ export default function DeleteButton({ reportId }) {
         const data = await res.json();
         throw new Error(data.error || "Gagal menghapus laporan");
       }
-
-      router.refresh();
+      if (onReportDeleted) {
+        onReportDeleted(reportId);
+      } else {
+        router.refresh();
+      }
+      
     } catch (error) {
       alert(error.message);
+    } finally {
       setIsLoading(false);
+      setIsConfirmOpen(false);
     }
   };
 

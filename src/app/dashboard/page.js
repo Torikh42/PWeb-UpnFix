@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import db from "@/lib/db";
 import Image from "next/image";
 import Link from "next/link";
-import DeleteButton from '@/components/DeleteButton';
+import DeleteButton from "@/components/DeleteButton";
 import { MapPin, Calendar, FolderSearch } from "lucide-react";
 
 async function getMyReports() {
@@ -42,7 +42,6 @@ export default async function DashboardPage() {
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header Section */}
         <div className="mb-10">
           <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
             Dashboard
