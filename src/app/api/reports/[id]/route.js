@@ -26,7 +26,7 @@ function getPublicId(imageUrl) {
 
 export async function PATCH(request, { params }) {
   try {
-    const { id: reportId } = params;
+    const { id: reportId } = await params;
     const { status } = await request.json();
 
     const token = request.cookies.get("token")?.value;

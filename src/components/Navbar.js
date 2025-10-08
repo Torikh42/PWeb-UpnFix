@@ -43,17 +43,33 @@ export default async function Navbar() {
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-600 group-hover:w-full transition-all duration-200"></span>
               </Link>
 
-              {user && (
-                <Link
-                  href={
-                    user.role === "ADMIN" ? "/admin/dashboard" : "/dashboard"
-                  }
-                  className="text-gray-700 hover:text-indigo-600 font-medium transition-colors duration-200 relative group"
-                >
-                  Dashboard
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-600 group-hover:w-full transition-all duration-200"></span>
-                </Link>
-              )}
+              {user &&
+                (user.role === "ADMIN" ? (
+                  <>
+                    <Link
+                      href="/admin/dashboard"
+                      className="text-gray-700 hover:text-indigo-600 font-medium transition-colors duration-200 relative group"
+                    >
+                      Dashboard
+                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-600 group-hover:w-full transition-all duration-200"></span>
+                    </Link>
+                    <Link
+                      href="/admin/users"
+                      className="text-gray-700 hover:text-indigo-600 font-medium transition-colors duration-200 relative group"
+                    >
+                      Manajemen Pengguna
+                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-600 group-hover:w-full transition-all duration-200"></span>
+                    </Link>
+                  </>
+                ) : (
+                  <Link
+                    href="/dashboard"
+                    className="text-gray-700 hover:text-indigo-600 font-medium transition-colors duration-200 relative group"
+                  >
+                    Dashboard
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-600 group-hover:w-full transition-all duration-200"></span>
+                  </Link>
+                ))}
             </div>
 
             <div className="flex items-center space-x-4 pl-6 border-l border-gray-200">
