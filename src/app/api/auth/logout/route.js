@@ -1,21 +1,13 @@
-import { NextResponse } from "next/server";
+import { logoutHandler } from "@/modules/auth/auth.handler";
 
-export async function POST(request) {
-  try {
-    const response = NextResponse.json({ message: "Logout successful" });
-    response.cookies.set("token", "", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV !== "development",
-      sameSite: "strict",
-      path: "/",
-      maxAge: 0,
-    });
-
-    return response;
-  } catch (err) {
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
-  }
-}
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: Logout User
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Logout berhasil
+ */
+export const POST = logoutHandler;
