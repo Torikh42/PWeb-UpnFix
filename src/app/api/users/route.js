@@ -1,16 +1,15 @@
-import { NextResponse } from "next/server";
-import pool from "@/lib/db";
+import { getAllUsersHandler } from "@/modules/users/user.handler";
 
-export async function GET() {
-  try {
-    const [rows] = await pool.query(
-      "SELECT id, full_name, email, role, created_at FROM users"
-    );
-    return NextResponse.json(rows);
-  } catch (error) {
-    return NextResponse.json(
-      { message: "Error fetching users", error },
-      { status: 500 }
-    );
-  }
-}
+/**
+ * @swagger
+ * /api/users:
+ *   get:
+ *     summary: Mendapatkan Semua User (Khusus Admin)
+ *     tags: [Users]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Sukses mengambil data
+ */
+export const GET = getAllUsersHandler;

@@ -1,7 +1,10 @@
 {
   "compilerOptions": {
+    "skipLibCheck": true,
+    "types": [],
     "paths": {
       "@/*": ["./src/*"]
     }
-  }
+  },
+  "exclude": ["node_modules"]
 }

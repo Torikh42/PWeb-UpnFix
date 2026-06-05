@@ -1,48 +1,26 @@
-import { NextResponse } from "next/server";
-import db from "@/lib/db";
+import { getAllReportsHandler } from "@/modules/reports/report.handler";
 
-export async function GET(request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const status = searchParams.get("status");
-    const category = searchParams.get("category");
-    const sortBy = searchParams.get("sortBy") || "newest";
-
-    let query = `
-      SELECT 
-        reports.*, 
-        users.full_name 
-      FROM reports 
-      JOIN users ON reports.user_id = users.id
-    `;
-    const params = [];
-
-    const whereClauses = [];
-    if (status && status !== "ALL") {
-      whereClauses.push("reports.status = ?");
-      params.push(status);
-    }
-    if (category && category !== "ALL") {
-      whereClauses.push("reports.category = ?");
-      params.push(category);
-    }
-
-    if (whereClauses.length > 0) {
-      query += " WHERE " + whereClauses.join(" AND ");
-    }
-
-    query += ` ORDER BY reports.created_at ${
-      sortBy === "oldest" ? "ASC" : "DESC"
-    }`;
-
-    const [reports] = await db.query(query, params);
-
-    return NextResponse.json(reports);
-  } catch (error) {
-    console.error("Get all reports API error:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
-  }
-}
+/**
+ * @swagger
+ * /api/reports:
+ *   get:
+ *     summary: Mendapatkan Semua Laporan
+ *     tags: [Reports]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *         description: Filter status (ALL, PENDING, DIPROSES, SELESAI)
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *         description: Filter kategori
+ *     responses:
+ *       200:
+ *         description: Sukses mengambil data
+ */
+export const GET = getAllReportsHandler;
