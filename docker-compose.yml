@@ -1,0 +1,174 @@
+# =============================================================
+# Docker Compose Stack: UPNFIX Network Security (UAS)
+# Arsitektur: Next.js + MySQL + Apache APISIX + SkyWalking + HertzBeat
+# Seluruh service terisolasi dalam jaringan internal upnfix-net
+# =============================================================
+
+networks:
+  upnfix-net:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local
+
+services:
+
+  # -------------------------------------------------------
+  # 1. DATABASE: MySQL 8.0
+  # Menyimpan data users dan reports, hanya bisa diakses
+  # dari dalam jaringan Docker (upnfix-net).
+  # -------------------------------------------------------
+  upnfix-db:
+    image: mysql:8.0
+    container_name: upnfix-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: upnfix
+    ports:
+      - "3306:3306"     # Expose untuk debugging lokal (opsional)
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot123"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - upnfix-net
+
+  # -------------------------------------------------------
+  # 2. APPLICATION: Next.js (Built via Dockerfile)
+  # Backend + Frontend SSR. Tidak diekspos langsung ke publik.
+  # Hanya bisa diakses melalui APISIX Gateway.
+  # init-db.js berjalan sebelum npm start untuk setup schema.
+  # -------------------------------------------------------
+  upnfix-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: upnfix-app
+    restart: always
+    env_file:
+      - .env.docker
+    depends_on:
+      upnfix-db:
+        condition: service_healthy
+    entrypoint: >
+      sh -c "
+        echo '=== UPNFIX: Initializing database schema...' &&
+        node scripts/init-db.js &&
+        echo '=== UPNFIX: Database ready. Starting application...' &&
+        npm start
+      "
+    networks:
+      - upnfix-net
+
+  # -------------------------------------------------------
+  # 3. ETCD: Storage backend untuk Apache APISIX
+  # Menyimpan seluruh konfigurasi routes dan plugins APISIX.
+  # -------------------------------------------------------
+  apisix-etcd:
+    image: bitnami/etcd:3.5.0
+    container_name: apisix-etcd
+    restart: always
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+    networks:
+      - upnfix-net
+
+  # -------------------------------------------------------
+  # 4. API GATEWAY: Apache APISIX 3.10.0
+  # Satu-satunya titik masuk publik. Menangani:
+  #   - TLS Termination (Layer 6)
+  #   - Rate Limiting & CORS (Layer 7)
+  #   - Header Masking & Security Headers (Layer 6)
+  #   - Distributed Tracing via SkyWalking plugin (Layer 7)
+  # Port 80/443 diekspos ke publik. Port 9180 adalah Admin API.
+  # -------------------------------------------------------
+  apisix:
+    image: apache/apisix:3.10.0-debian
+    container_name: apisix
+    restart: always
+    ports:
+      - "80:9080"       # HTTP (redirect ke HTTPS via plugin)
+      - "443:9443"      # HTTPS (TLS Termination)
+      - "9180:9180"     # Admin API (gunakan untuk setup-apisix.sh)
+    volumes:
+      - ./apisix_config/config.yaml:/usr/local/apisix/conf/config.yaml
+      - ./apisix_config/certs:/usr/local/apisix/conf/certs
+    depends_on:
+      - apisix-etcd
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f -H 'X-API-KEY: edd1y83n4039gli7' http://localhost:9180/apisix/admin/services || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - upnfix-net
+
+  # -------------------------------------------------------
+  # 5. OBSERVABILITY: Apache SkyWalking OAP Server 9.5.0
+  # Menerima data tracing dari plugin skywalking APISIX.
+  # Port 12800: HTTP REST API (untuk APISIX plugin & UI query)
+  # Port 11800: gRPC (untuk agent-based tracing jika dipakai)
+  # -------------------------------------------------------
+  skywalking-oap:
+    image: apache/skywalking-oap-server:9.5.0
+    container_name: skywalking-oap
+    restart: always
+    ports:
+      - "11800:11800"   # gRPC collector
+      - "12800:12800"   # HTTP REST API
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:12800/internal/l7check || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - upnfix-net
+
+  # -------------------------------------------------------
+  # 6. OBSERVABILITY: Apache SkyWalking UI Dashboard 9.5.0
+  # Dashboard visualisasi trace, metrik latensi, dan service map.
+  # Akses: http://localhost:8080
+  # -------------------------------------------------------
+  skywalking-ui:
+    image: apache/skywalking-ui:9.5.0
+    container_name: skywalking-ui
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - SW_OAP_ADDRESS=http://skywalking-oap:12800
+    depends_on:
+      skywalking-oap:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - upnfix-net
+
+  # -------------------------------------------------------
+  # 7. MONITORING: Apache HertzBeat v1.6.0
+  # Platform monitoring uptime & alerting untuk semua layanan.
+  # Akses dashboard: http://localhost:1157 (admin / admin)
+  # PERINGATAN: Ganti password default setelah setup!
+  # -------------------------------------------------------
+  hertzbeat:
+    image: tancloud/hertzbeat:v1.6.0
+    container_name: hertzbeat
+    restart: always
+    ports:
+      - "1157:1157"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:1157 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - upnfix-net

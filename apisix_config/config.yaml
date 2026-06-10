@@ -1,0 +1,173 @@
+# =============================================================
+# apisix_config/config.yaml
+# Konfigurasi utama Apache APISIX 3.10.0
+# =============================================================
+# Arsitektur: APISIX terhubung ke etcd sebagai config provider.
+# SkyWalking plugin dikonfigurasi via plugin_attr untuk HTTP tracing.
+# SSL diatur untuk port 9443 (di-mount via volume Docker).
+# =============================================================
+
+apisix:
+  # Port listener HTTP dan HTTPS
+  node_listen:
+    - 9080   # HTTP
+    - 9443   # HTTPS (TLS)
+
+  enable_ipv6: false
+  enable_reuseport: true
+
+  # Format log upstream (menampilkan IP client asli)
+  show_upstream_logs_format: "real_client_ip: $real_client_ip"
+
+  # Binding address untuk HTTP dan HTTPS listener
+  http_listen: 0.0.0.0
+  https_listen: 0.0.0.0
+
+  # Konfigurasi SSL / TLS (Layer 6 - Presentation)
+  ssl:
+    listen_port: 9443
+    enable_http2: true
+    # Sertifikat di-mount dari ./apisix_config/certs/ via Docker volume
+    cert: "/usr/local/apisix/conf/certs/cert.pem"
+    key:  "/usr/local/apisix/conf/certs/key.pem"
+
+  # -------------------------------------------------------
+  # Daftar plugin yang diaktifkan
+  # Plugin yang digunakan dalam tugas UAS:
+  #   - limit-count    : Rate limiting (L7 brute-force mitigation)
+  #   - cors           : CORS policy (L7)
+  #   - response-rewrite : Header masking / security headers (L6)
+  #   - ip-restriction : IP allowlist/blocklist (L7)
+  #   - skywalking     : Distributed tracing ke SkyWalking OAP (L7)
+  #   - proxy-rewrite  : Modifikasi path/header upstream (L6/L7)
+  # -------------------------------------------------------
+  plugins:
+    - real-ip
+    - client-control
+    - ext-plugin-pre-req
+    - serverless-pre-function
+    - cors
+    - fault-injection
+    - limit-count
+    - limit-conn
+    - limit-req
+    - grpc-transcode
+    - prometheus
+    - proxy-cache
+    - batch-requests
+    - key-auth
+    - jwt-auth
+    - basic-auth
+    - bearer-token
+    - authz-casl
+    - authz-keycloak
+    - authz-casbin
+    - authz-http
+    - wolf-rbac
+    - openid-connect
+    - headersfilter
+    - request-validation
+    - response-rewrite
+    - aws-lambda
+    - azure-functions
+    - openwhisk
+    - request-id
+    - opensearch-logger
+    - splunk-hec-logging
+    - datadog
+    - file-logger
+    - skywalking
+    - error-log-logger
+    - sls-logger
+    - tcp-logger
+    - kafka-logger
+    - rocketmq-logger
+    - syslog
+    - google-cloud-logging
+    - clickhouse-logger
+    - elasticsearch-logger
+    - inspect
+    - log-rotate
+    - example-plugin
+    - gm
+    - zipkin
+    - server-info
+    - traffic-split
+    - redirect
+    - uri-blocker
+    - chaitin-waf
+    - otelcol
+    - proxy-mirror
+    - proxy-rewrite
+    - api-breaker
+    - mocking
+    - degraphql
+    - casdoor
+    - ip-restriction
+    - referer-restriction
+    - ua-restriction
+    - csrf
+    - hmac-auth
+    - session
+    - echo
+    - loggly
+    - rfc5424-syslog
+
+  # mTLS Admin API (kosong = disabled untuk simulasi lokal)
+  admin_api_mtls:
+    admin_ssl_cert: ""
+    admin_ssl_key: ""
+    admin_ssl_ca_cert: ""
+
+# =============================================================
+# Deployment Configuration
+# Mode: traditional (APISIX + etcd pada satu deployment)
+# =============================================================
+deployment:
+  role: traditional
+  role_traditional:
+    config_provider: etcd
+
+  # Admin API key untuk autentikasi script setup-apisix.sh
+  admin:
+    admin_key:
+      - name: admin
+        key: edd1y83n4039gli7
+        role: admin
+      - name: viewer
+        key: viewer_key_1
+        role: viewer
+
+  # Koneksi ke etcd container (nama service Docker: apisix-etcd)
+  etcd:
+    host:
+      - "http://apisix-etcd:2379"
+    prefix: /apisix
+    timeout: 30
+
+enable_admin: true
+enable_debug: false
+
+# =============================================================
+# Log Configuration
+# =============================================================
+log:
+  error_log: "/usr/local/apisix/logs/error.log"
+  error_log_level: "warn"
+  access_log: "/usr/local/apisix/logs/access.log"
+  access_log_format: '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $request_time'
+  access_log_buffer_size: 16384
+
+graphql:
+  max_depth: 200
+
+# =============================================================
+# Plugin Attributes Global
+# SkyWalking: Dikirim ke OAP server via HTTP port 12800
+# Service name akan muncul sebagai "UPNFIX-Gateway" di dashboard
+# =============================================================
+plugin_attr:
+  skywalking:
+    service_name: UPNFIX-Gateway
+    service_instance_name: APISIX-Instance
+    endpoint_addr: http://skywalking-oap:12800

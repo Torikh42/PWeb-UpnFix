@@ -32,6 +32,14 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# Docker env (berisi secret, jangan di-commit)
+# .env.docker — EXCLUDE dari git, gunakan .env.docker.example sebagai template
+
+# SSL certificates (di-generate lokal, jangan di-commit)
+apisix_config/certs/*.pem
+
+# Screenshots dokumentasi (opsional, bisa besar)
+screenshots/
 
 # vercel
 .vercel

@@ -1,0 +1,60 @@
+# ==============================================================
+# .dockerignore — File yang dikecualikan dari Docker build context
+# ==============================================================
+# Mencegah file yang tidak diperlukan masuk ke image Docker,
+# mempercepat proses build, dan menjaga keamanan file rahasia.
+# ==============================================================
+
+# --- Dependensi Node.js (akan diinstall ulang di dalam container) ---
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# --- Build artifacts Next.js ---
+.next
+out
+build
+
+# --- File environment (JANGAN masukkan ke image Docker!) ---
+.env
+.env.*
+!.env.docker
+
+# --- Git & version control ---
+.git
+.gitignore
+.gitattributes
+
+# --- IDE & editor ---
+.vscode
+.idea
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# --- Dokumentasi (tidak perlu di image production) ---
+README.md
+docs/
+*.md
+
+# --- Test & coverage ---
+coverage/
+__tests__/
+*.test.js
+*.spec.js
+
+# --- Docker files sendiri (tidak perlu di dalam image) ---
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# --- SSL Certificates (di-mount via volume, bukan di-copy) ---
+apisix_config/certs/
+
+# --- Screenshot & media dokumentasi ---
+screenshots/
+
+# --- File PDF tugas ---
+*.pdf
