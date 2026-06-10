@@ -1,8 +1,7 @@
 # ==============================================================
 # Stage 1: Builder
 # Menginstall dependensi dan membuild aplikasi Next.js
-# ==============================================================
-FROM node:18-alpine AS base
+FROM node:20-alpine AS base
 
 WORKDIR /app
 
@@ -21,7 +20,7 @@ RUN npx next build
 # Stage 2: Runner
 # Image production yang ringan, hanya berisi artefak build
 # ==============================================================
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 
 WORKDIR /app
 

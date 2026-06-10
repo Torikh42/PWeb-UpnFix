@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { getAllReportsHandler } from "@/modules/reports/report.handler";
 
 /**

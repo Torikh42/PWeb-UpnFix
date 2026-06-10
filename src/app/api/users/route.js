@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { getAllUsersHandler } from "@/modules/users/user.handler";
 
 /**

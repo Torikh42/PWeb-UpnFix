@@ -402,6 +402,8 @@ plugin_attr:
 
 #### 2. Skrip Inisialisasi APISIX (`setup-apisix.sh`) - Menggabungkan Rute Catch-All
 ```bash
+# Catatan: jq diganti python escape (untuk windows bash compatibility)
+# skywalking plugin dimatikan sementara karena tidak ada di default image 3.10.0
 #!/bin/bash
 # scripts/setup-apisix.sh
 set -e
@@ -460,7 +462,7 @@ curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/upstreams/backend-nextjs" \
     "nodes": {
       "upnfix-app:3000": 1
     }
-  }' | jq .
+  }'
 echo "✓ Upstream backend-nextjs berhasil dibuat"
 
 echo ""
@@ -491,12 +493,9 @@ curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/routes/auth_login" \
           },
           "remove": ["X-Powered-By"]
         }
-      },
-      "skywalking": {
-        "sample_ratio": 1.0
       }
     }
-  }' | jq .
+  }'
 echo "✓ Rute /api/auth/login berhasil dibuat"
 
 # Rute 2: POST /api/auth/signup (Rate Limiting + SkyWalking)
@@ -523,12 +522,9 @@ curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/routes/auth_signup" \
           },
           "remove": ["X-Powered-By"]
         }
-      },
-      "skywalking": {
-        "sample_ratio": 1.0
       }
     }
-  }' | jq .
+  }'
 echo "✓ Rute /api/auth/signup berhasil dibuat"
 
 # Rute 3: GET /api/users (Admin Only - Next.js Middleware Verifies)
@@ -549,12 +545,9 @@ curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/routes/api_users" \
           },
           "remove": ["X-Powered-By"]
         }
-      },
-      "skywalking": {
-        "sample_ratio": 1.0
       }
     }
-  }' | jq .
+  }'
 echo "✓ Rute /api/users berhasil dibuat"
 
 # Rute 4: /api/reports* (All Methods)
@@ -574,12 +567,9 @@ curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/routes/api_reports" \
           },
           "remove": ["X-Powered-By"]
         }
-      },
-      "skywalking": {
-        "sample_ratio": 1.0
       }
     }
-  }' | jq .
+  }'
 echo "✓ Rute /api/reports* berhasil dibuat"
 
 # Rute 5: Global CORS & Catch-All Frontend (Digabung untuk menghindari konflik uri /*)
@@ -606,12 +596,9 @@ curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/routes/frontend_catchall" \
           },
           "remove": ["X-Powered-By"]
         }
-      },
-      "skywalking": {
-        "sample_ratio": 1.0
       }
     }
-  }' | jq .
+  }'
 echo "✓ Rute Gabungan Frontend Catch-All & CORS berhasil dibuat"
 
 echo ""
@@ -715,6 +702,8 @@ bash scripts/setup-apisix.sh
 #### [NEW] [check-health.sh](file:///d:/PWeb-UpnFix/scripts/check-health.sh)
 Skrip pembantu untuk memantau status kesehatan database MySQL dan container lainnya sebelum konfigurasi diunggah:
 ```bash
+# Catatan: jq diganti python escape (untuk windows bash compatibility)
+# skywalking plugin dimatikan sementara karena tidak ada di default image 3.10.0
 #!/bin/bash
 # scripts/check-health.sh
 set -e

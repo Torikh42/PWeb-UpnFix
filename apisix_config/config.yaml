@@ -130,6 +130,8 @@ deployment:
 
   # Admin API key untuk autentikasi script setup-apisix.sh
   admin:
+    allow_admin:
+      - 0.0.0.0/0
     admin_key:
       - name: admin
         key: edd1y83n4039gli7
