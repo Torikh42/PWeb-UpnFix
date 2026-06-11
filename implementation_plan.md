@@ -925,10 +925,10 @@ Verifikasi dengan `docker compose ps` untuk memastikan semua container lolos dar
 ### C. Execution of APISIX Setup Script
 Pemeriksaan output CLI dari `setup-apisix.sh` memastikan respons API admin bernilai sukses (mengembalikan payload dengan `"key"` pada APISIX 3.x).
 
-### D. Manual Verification Scripts
-Menjalankan perintah uji coba otomatis dari [TESTING.md](file:///d:/PWeb-UpnFix/docs/TESTING.md) untuk memastikan:
-- HTTPS validasi localhost.
-- Status limit-count membatasi request spam (429).
-- Role checking admin-only (403) pada endpoint `/api/users`.
-- Konfigurasi SkyWalking UI (`http://localhost:8080`) memvisualisasikan data transaksi HTTP.
-- Metrik uptime HertzBeat UI (`http://localhost:1157`) berjalan normal.
+### D. Security Verification Methods
+Pengujian keamanan dilakukan secara manual dan otomatis:
+- **Otomatis (`scripts/run-tests.sh`):** Menjalankan uji coba beruntun menggunakan curl untuk memvalidasi status respons TLS Redirect (301), rate limiting (429), Broken Access Control (403/401), dan SQL Injection (400) secara otomatis.
+- **Manual (`request.rest`):** Menggunakan ekstensi VS Code REST Client untuk melakukan pengujian fungsional satu per satu terhadap endpoint keamanan.
+- **Observability:**
+  - Konfigurasi SkyWalking UI (`http://localhost:8080` via Incognito) memvisualisasikan data transaksi HTTP secara real-time.
+  - Metrik uptime HertzBeat UI (`http://localhost:1157` via `admin`/`hertzbeat`) memantau status hidup/mati container.
