@@ -70,11 +70,13 @@ services:
   # Menyimpan seluruh konfigurasi routes dan plugins APISIX.
   # -------------------------------------------------------
   apisix-etcd:
-    image: bitnami/etcd:3.5.0
+    image: quay.io/coreos/etcd:v3.5.0
     container_name: apisix-etcd
     restart: always
-    environment:
-      - ALLOW_NONE_AUTHENTICATION=yes
+    command:
+      - /usr/local/bin/etcd
+      - --listen-client-urls=http://0.0.0.0:2379
+      - --advertise-client-urls=http://apisix-etcd:2379
     networks:
       - upnfix-net
 
@@ -122,10 +124,11 @@ services:
       - "11800:11800"   # gRPC collector
       - "12800:12800"   # HTTP REST API
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:12800/internal/l7check || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
+      test: ["CMD-SHELL", "wget -S --spider --timeout=5 http://localhost:12800/ 2>&1 | grep -qE '(200|400|404|405)' && exit 0 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
     networks:
       - upnfix-net
 

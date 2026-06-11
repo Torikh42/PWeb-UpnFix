@@ -69,8 +69,9 @@ fi
 
 CERT_CONTENT=$(cat apisix_config/certs/cert.pem)
 KEY_CONTENT=$(cat apisix_config/certs/key.pem)
-CERT_ESCAPED=$(echo "$CERT_CONTENT" | jq -Rs .)
-KEY_ESCAPED=$(echo "$KEY_CONTENT" | jq -Rs .)
+# Gunakan python untuk escape JSON string (pengganti jq -Rs .)
+CERT_ESCAPED=$(python -c "import sys,json; print(json.dumps(open('apisix_config/certs/cert.pem').read()))")
+KEY_ESCAPED=$(python -c "import sys,json; print(json.dumps(open('apisix_config/certs/key.pem').read()))")
 
 RESPONSE=$(curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/ssls/1" \
   -H "X-API-KEY: $ADMIN_API_KEY" \
@@ -100,7 +101,7 @@ curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/upstreams/backend-nextjs" \
     "nodes": {
       "upnfix-app:3000": 1
     }
-  }' | jq .
+  }'
 
 echo -e "${GREEN}  ✓ Upstream backend-nextjs berhasil dibuat${NC}"
 
@@ -143,12 +144,9 @@ curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/routes/auth_login" \
           },
           "remove": ["X-Powered-By"]
         }
-      },
-      "skywalking": {
-        "sample_ratio": 1.0
       }
     }
-  }' | jq .
+  }'
 echo -e "${GREEN}  ✓ Route /api/auth/login selesai${NC}"
 echo ""
 
@@ -182,12 +180,9 @@ curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/routes/auth_signup" \
           },
           "remove": ["X-Powered-By"]
         }
-      },
-      "skywalking": {
-        "sample_ratio": 1.0
       }
     }
-  }' | jq .
+  }'
 echo -e "${GREEN}  ✓ Route /api/auth/signup selesai${NC}"
 echo ""
 
@@ -214,12 +209,9 @@ curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/routes/api_users" \
           },
           "remove": ["X-Powered-By"]
         }
-      },
-      "skywalking": {
-        "sample_ratio": 1.0
       }
     }
-  }' | jq .
+  }'
 echo -e "${GREEN}  ✓ Route /api/users selesai${NC}"
 echo ""
 
@@ -245,12 +237,9 @@ curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/routes/api_reports" \
           },
           "remove": ["X-Powered-By"]
         }
-      },
-      "skywalking": {
-        "sample_ratio": 1.0
       }
     }
-  }' | jq .
+  }'
 echo -e "${GREEN}  ✓ Route /api/reports* selesai${NC}"
 echo ""
 
@@ -283,12 +272,9 @@ curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/routes/frontend_catchall" \
           },
           "remove": ["X-Powered-By"]
         }
-      },
-      "skywalking": {
-        "sample_ratio": 1.0
       }
     }
-  }' | jq .
+  }'
 echo -e "${GREEN}  ✓ Route /* (Catch-All + CORS) selesai${NC}"
 
 # =============================================================
