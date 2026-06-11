@@ -41,20 +41,31 @@ export async function getReports(status, category, sortBy) {
 }
 
 export async function submitReport(userPayload, title, description, location, category, file) {
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
+  let secureUrl = "";
+  try {
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
 
-  const uploadResult = await new Promise((resolve, reject) => {
-    cloudinary.uploader
-      .upload_stream({ resource_type: "image" }, (err, result) => {
-        if (err) reject(err);
-        resolve(result);
-      })
-      .end(buffer);
-  });
+    const uploadResult = await new Promise((resolve, reject) => {
+      // Set timeout 10 detik agar tidak hang selamanya jika ada kendala koneksi
+      const uploadStream = cloudinary.uploader.upload_stream(
+        { resource_type: "image", timeout: 10000 },
+        (err, result) => {
+          if (err) reject(err);
+          resolve(result);
+        }
+      );
+      uploadStream.end(buffer);
+    });
 
-  if (!uploadResult || !uploadResult.secure_url) {
-    throw new Error("Cloudinary upload failed");
+    if (uploadResult && uploadResult.secure_url) {
+      secureUrl = uploadResult.secure_url;
+    } else {
+      throw new Error("No secure_url in upload result");
+    }
+  } catch (error) {
+    console.warn("Cloudinary upload failed, using fallback placeholder image:", error.message || error);
+    secureUrl = "/assets/problem1.jpg";
   }
 
   const reportId = await createReport(
@@ -63,10 +74,10 @@ export async function submitReport(userPayload, title, description, location, ca
     description,
     location,
     category,
-    uploadResult.secure_url
+    secureUrl
   );
 
-  return { reportId, imageUrl: uploadResult.secure_url };
+  return { reportId, imageUrl: secureUrl };
 }
 
 export async function changeReportStatus(userPayload, reportId, status) {
@@ -85,9 +96,15 @@ export async function removeReport(userPayload, reportId) {
 
   if (!isOwner && !isAdmin) throw new Error("Forbidden");
 
-  if (report.image_url) {
+  if (report.image_url && report.image_url.includes("res.cloudinary.com")) {
     const publicId = getPublicId(report.image_url);
-    if (publicId) await cloudinary.uploader.destroy(publicId);
+    if (publicId) {
+      try {
+        await cloudinary.uploader.destroy(publicId, { timeout: 5000 });
+      } catch (err) {
+        console.warn("Failed to delete image from Cloudinary (ignored):", err.message || err);
+      }
+    }
   }
 
   await deleteReportById(reportId);

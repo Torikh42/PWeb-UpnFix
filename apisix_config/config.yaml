@@ -11,10 +11,10 @@ apisix:
   # Port listener HTTP dan HTTPS
   node_listen:
     - 9080   # HTTP
-    - 9443   # HTTPS (TLS)
 
   enable_ipv6: false
   enable_reuseport: true
+  enable_http2: true
 
   # Format log upstream (menampilkan IP client asli)
   show_upstream_logs_format: "real_client_ip: $real_client_ip"
@@ -25,8 +25,9 @@ apisix:
 
   # Konfigurasi SSL / TLS (Layer 6 - Presentation)
   ssl:
-    listen_port: 9443
-    enable_http2: true
+    listen:
+      - port: 9443
+
     # Sertifikat di-mount dari ./apisix_config/certs/ via Docker volume
     cert: "/usr/local/apisix/conf/certs/cert.pem"
     key:  "/usr/local/apisix/conf/certs/key.pem"

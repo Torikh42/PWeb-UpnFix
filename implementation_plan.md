@@ -706,10 +706,10 @@ bash scripts/setup-apisix.sh
 ```
 
 ### 5. Konfigurasi Monitoring HertzBeat
-- Akses dashboard di `http://localhost:1157/` (Login default: `admin`/`admin`).
+- Akses dashboard di `http://localhost:1157/` (Login default: `admin`/`hertzbeat`).
 - Navigasi ke **Monitors** -> **HTTP Protocol**.
 - Tambahkan konfigurasi monitor baru dengan menargetkan endpoint `http://upnfix-app:3000/` untuk memantau ketersediaan aplikasi web Next.js secara internal.
-- *Catatan Kredensial*: Akun default `admin`/`admin` pada HertzBeat merupakan risiko keamanan (default credentials). Kredensial ini disarankan untuk diubah melalui menu Settings di HertzBeat setelah instalasi awal.
+- *Catatan Kredensial*: Akun default `admin`/`hertzbeat` pada HertzBeat merupakan risiko keamanan (default credentials). Kredensial ini disarankan untuk diubah melalui menu Settings di HertzBeat setelah instalasi awal.
 ```
 
 #### [NEW] [check-health.sh](file:///d:/PWeb-UpnFix/scripts/check-health.sh)
@@ -918,7 +918,7 @@ Pada era digitalisasi kampus, keandalan sistem informasi manajemen menjadi aspek
 Pengamanan berlapis menggunakan APISIX, SkyWalking, dan HertzBeat sukses melindungi sistem UPNFIX dari celah eksploitasi Layer 5-6-7 OSI. Rate limiting sukses menahan spam login, header masking berhasil melindungi identitas server Next.js, dan pembatasan role check berhasil menghentikan Broken Access Control.
 
 #### 6.2 Rekomendasi
-- Mengubah kredensial default admin dashboard HertzBeat (`admin`/`admin`) setelah setup guna mencegah pengambilalihan dasbor monitoring.
+- Mengubah kredensial default admin dashboard HertzBeat (`admin`/`hertzbeat`) setelah setup guna mencegah pengambilalihan dasbor monitoring.
 - Mengintegrasikan Web Application Firewall (WAF) seperti Coraza atau ModSecurity pada APISIX untuk Layer 7 WAF protection.
 - Menerapkan Multi-Factor Authentication (MFA) pada login administrator.
 ```

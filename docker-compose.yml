@@ -156,7 +156,7 @@ services:
   # -------------------------------------------------------
   # 7. MONITORING: Apache HertzBeat v1.6.0
   # Platform monitoring uptime & alerting untuk semua layanan.
-  # Akses dashboard: http://localhost:1157 (admin / admin)
+  # Akses dashboard: http://localhost:1157 (admin / hertzbeat)
   # PERINGATAN: Ganti password default setelah setup!
   # -------------------------------------------------------
   hertzbeat:

@@ -46,6 +46,26 @@ const initializeDatabase = async () => {
     console.log("Creating tables...");
     await connection.query(schemaSQL);
     console.log("Tables created successfully!");
+
+    // Seed default Admin user if not exists
+    const adminEmail = "admin@upnfix.id";
+    const [existingAdmins] = await connection.query(
+      "SELECT id FROM users WHERE email = ?",
+      [adminEmail]
+    );
+
+    if (existingAdmins.length === 0) {
+      console.log("Seeding default Admin user...");
+      const bcrypt = require("bcryptjs");
+      const hashedPassword = await bcrypt.hash("adminpassword", 10);
+      await connection.query(
+        "INSERT INTO users (full_name, email, password, role) VALUES (?, ?, ?, ?)",
+        ["Admin UPNFIX", adminEmail, hashedPassword, "ADMIN"]
+      );
+      console.log("Default Admin user seeded successfully!");
+    } else {
+      console.log("Admin user already exists, skipping seed.");
+    }
   } catch (error) {
     console.error("Failed to initialize database:", error.message);
     process.exit(1);
