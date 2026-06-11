@@ -108,3 +108,30 @@ Content-Type: {{contentType}}
   "email": "budi@upnfix.id",
   "password": "salahpassword"
 }
+
+###
+# 10. Uji TLS Redirect (Presentation Layer Security - Layer 6)
+# Hit endpoint HTTP biasa (port 80) tanpa enkripsi.
+# Ekspektasi: APISIX secara otomatis merespons dengan redirect (301/308 atau 307)
+#             dan mengarahkan client ke https://localhost/ (HTTPS terenkripsi).
+GET http://localhost/
+
+###
+# 11. Uji Request Error untuk Tracing (SkyWalking Trace - Layer 7)
+# Mengirim request ke rute yang tidak ada untuk memicu error 404.
+# Ekspektasi: Respons 404 Not Found. Request ini akan tercatat sebagai "error trace"
+#             berwarna merah di dashboard SkyWalking (http://localhost:8080).
+GET {{baseUrl}}/api/non-existent-route
+
+###
+# =====================================================================
+# SIMULASI MONITORING & ALERTING (HertzBeat - Layer 7)
+# =====================================================================
+# Skenario: Simulasi Service Down
+# Langkah:
+#   1. Jalankan di terminal host Anda: "docker compose stop upnfix-app"
+#   2. Buka dashboard HertzBeat di http://localhost:1157.
+#   3. Ekspektasi: Status monitor "upnfix-app" akan berubah merah (Down),
+#      dan alert/peringatan sistem down akan muncul di tab Alerts.
+#   4. Nyalakan kembali: "docker compose up -d"
+# =====================================================================
