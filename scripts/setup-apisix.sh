@@ -263,6 +263,9 @@ curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/routes/frontend_catchall" \
         "expose_headers": "Content-Length,Access-Control-Allow-Origin,Access-Control-Allow-Credentials",
         "max_age": 5
       },
+      "redirect": {
+        "http_to_https": true
+      },
       "response-rewrite": {
         "headers": {
           "set": {
