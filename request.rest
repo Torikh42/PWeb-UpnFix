@@ -124,6 +124,23 @@ GET http://localhost/
 GET {{baseUrl}}/api/non-existent-route
 
 ###
+# 12. Uji SQL Injection (Layer 6 Data Formatting & Layer 7 Input Validation)
+# Mengirimkan payload bypass login klasik: ' OR '1'='1 ke form email.
+# Ekspektasi: Respons 400 Bad Request dari backend.
+#             Hal ini dikarenakan library validasi skema input kita (Joi di Layer 7)
+#             mendeteksi string tersebut bukan format email yang valid.
+#             Jika validasi dilewati, prepared statements/parameterized queries (Layer 6)
+#             pada driver mysql2 kita tetap menganggap payload tersebut sebagai string literal biasa
+#             (bukan kode SQL executable), sehingga login tetap diblokir (401 Unauthorized) dengan aman.
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@upnfix.id' OR '1'='1",
+  "password": "apapun"
+}
+
+###
 # =====================================================================
 # SIMULASI MONITORING & ALERTING (HertzBeat - Layer 7)
 # =====================================================================
