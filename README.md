@@ -64,6 +64,7 @@ Petunjuk ini akan membantu Anda menjalankan salinan proyek di mesin lokal untuk 
 Aplikasi ini dideploy menggunakan **Docker Compose** dengan tumpukan teknologi keamanan berbasis proyek **Apache Software Foundation**:
 *   **Next.js (v15.5.4)** & **MySQL (v8.0)** - Aplikasi inti UPNFIX.
 *   **Apache APISIX (v3.10.0)** - API Gateway untuk TLS Termination (L6), Header Masking (L6), CORS (L7), dan Rate Limiting (L7).
+*   **Apache Fortress** - Sistem otorisasi RBAC granular (L7) terpusat berbasis LDAP untuk memotong celah Broken Access Control (BAC).
 *   **Apache SkyWalking (v9.5.0)** - Observability & Distributed Tracing (L7) untuk merekam dan menganalisis jejak request.
 *   **Apache HertzBeat (v1.6.0)** - Uptime, Port, & Availability Monitoring (L7) dengan alarm otomatis.
 

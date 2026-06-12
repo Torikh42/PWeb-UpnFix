@@ -16,6 +16,7 @@ Berikut adalah pemetaan kontrol keamanan yang akurat sesuai dengan fungsionalita
 | **Apache APISIX** | **Layer 5 & 7 (Session & Application)** | `limit-count` (Rate Limiting) | Mencegah brute-force login/signup pada `/api/auth/login` dan `/api/auth/signup`. |
 | **Apache APISIX** | **Layer 6 (Presentation)** | TLS/SSL Termination & `proxy-rewrite` | Enkripsi komunikasi client-gateway (HTTPS), masking response header (`X-Powered-By`, `Server`), dan injeksi header keamanan (`X-Frame-Options`, dll). |
 | **Apache APISIX** | **Layer 7 (Application)** | `ip-restriction` & `cors` | API access control, membatasi asal request (CORS) untuk development/production dan IP client. |
+| **Apache Fortress** | **Layer 5 & 7 (Session & Application)** | Role-Based Access Control (RBAC) & Otorisasi | Mengelola otorisasi dan kontrol akses berbasis role secara terpusat untuk mencegah Broken Access Control (BAC) pada rute sensitif. |
 | **Apache SkyWalking** | **Layer 7 (Application)** | APISIX SkyWalking Plugin (HTTP Tracing) | Distributed tracing request HTTP ke upstream via OAP HTTP Port 12800, mendeteksi request flooding dan latensi tanpa Node.js agent. |
 | **Apache HertzBeat** | **Layer 7 (Application)** | Availability Monitoring & Alerting | Monitoring ketersediaan layanan (Next.js, MySQL, APISIX) secara real-time dan sistem peringatan jika terjadi down (Denial of Service). |
 
@@ -32,6 +33,12 @@ Next.js mengelola autentikasi berbasis cookie (`token`). Untuk menyelaraskan ini
 Beberapa endpoint sensitif saat ini tidak terproteksi atau kurang perlindungan. Kita akan melakukan perbaikan pada:
 - **`src/middleware.js`**: Menambahkan rute `/api/users` dan `/api/reports/:path*` ke dalam config matcher agar divalidasi oleh Next.js Middleware. Setiap request ke API ini wajib memiliki JWT token yang sah.
 - **`src/modules/users/user.handler.js`**: Menambahkan fallback validation di level handler untuk memverifikasi token dan role `ADMIN`.
+
+### Integrasi Desentralisasi Otorisasi: Apache Fortress (Layer 7 RBAC)
+Untuk meningkatkan arsitektur keamanan dari pengecekan role hardcoded (misal `role !== 'ADMIN'`), kami memperkenalkan konsep integrasi **Apache Fortress** (menggunakan database LDAP / Directory Service):
+1. **Pemisahan Logika Otorisasi (Decoupling):** Kode Next.js mendelegasikan pengecekan hak akses ke Apache Fortress (via REST API). Handler backend tidak lagi menyimpan data role secara statis, melainkan menanyakan apakah identitas user (dari JWT) memiliki *permission* tertentu pada *resource* terkait.
+2. **Standardisasi:** Menggunakan standar RBAC ANSI INCITS 359 untuk mengelola Roles (ADMIN, USER, TEKNISI), Permissions (`read_users`, `delete_report`), dan Role-User Assignments secara dinamis tanpa melakukan perubahan kode.
+3. **Pengamanan Pra-Upstream:** APISIX dapat berintegrasi secara berkala dengan Fortress melalui REST plugin untuk memblokir request ilegal langsung di level API Gateway sebelum request masuk ke Next.js.
 
 ---
 
@@ -627,6 +634,8 @@ graph TD
         ETCD[APISIX etcd storage]
         App[Next.js Application upnfix-app:3000]
         DB[(MySQL Database upnfix-db:3306)]
+        Fortress[Apache Fortress Server]
+        LDAP[(OpenLDAP Directory)]
         SkyOAP[SkyWalking OAP Server:11800/12800]
         SkyUI[SkyWalking UI Dashboard:8080]
         HertzBeat[HertzBeat Monitor:1157]
@@ -639,6 +648,8 @@ graph TD
     APISIX <--> ETCD
     APISIX -->|Proxy & Cookie Forwarding| App
     App <--> DB
+    App -->|RBAC Otorisasi Query| Fortress
+    Fortress <--> LDAP
     APISIX -->|HTTP Request Tracing Plugin| SkyOAP
     SkyUI --> SkyOAP
     HertzBeat -.->|Uptime Monitoring ICMP/HTTP| APISIX
@@ -646,9 +657,10 @@ graph TD
     HertzBeat -.->|TCP Port Monitoring| DB
 ```
 
-## 2. Tanggung Jawab Keamanan: APISIX vs Middleware
+## 2. Tanggung Jawab Keamanan: APISIX vs Middleware vs Apache Fortress
 - **Apache APISIX**: Mengontrol performa, enkripsi, dan rate limiting di sisi tepi jaringan gateway (Layer 6 & 7). APISIX membatasi serangan brute-force, menyembunyikan header asli backend (`Server`, `X-Powered-By`), serta memonitor beban traffic.
 - **Next.js Middleware**: Mengontrol sesi identitas di level aplikasi (Layer 5). Middleware memvalidasi cookie `token` dengan pustaka `jose` sebelum diteruskan ke handler internal.
+- **Apache Fortress**: Mengelola otorisasi RBAC granular (Layer 7). Menggantikan hardcoded checks dengan LDAP Directory-based rules untuk memutus celah Broken Access Control secara absolut.
 ```
 
 #### [NEW] [SETUP.md](file:///d:/PWeb-UpnFix/docs/SETUP.md)
