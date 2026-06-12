@@ -910,13 +910,23 @@ Pada era digitalisasi kampus, keandalan sistem informasi manajemen menjadi aspek
 [Sesuai matriks pengujian dalam TESTING.md]
 
 #### 5.2 Hasil Sebelum dan Sesudah Mitigasi
-[Tabel perbandingan hasil pengujian status HTTP]
+
+Berikut adalah matriks perbandingan tingkat keamanan pada sistem UPNFIX sebelum dan sesudah penerapan arsitektur keamanan Apache Foundation (APISIX, SkyWalking, HertzBeat, & Fortress):
+
+| Layer OSI | Aspek Keamanan / Celah | Kondisi SEBELUM Pengamanan (Next.js Standalone) | Kondisi SESUDAH Pengamanan (Next.js + Apache Stack) | Status / Hasil Pengujian |
+| :--- | :--- | :--- | :--- | :--- |
+| **Layer 5 & 7** | **Broken Access Control (BAC)** | Endpoint sensitif `/api/users` tidak terproteksi. User biasa (non-admin) bisa melihat seluruh data kredensial user lain. | Akses diproteksi middleware. Sesi tanpa token diblokir (`401 Unauthorized`). Otorisasi user non-admin diblokir (`403 Forbidden`). Otorisasi Admin diizinkan (`200 OK`). | **BERHASIL** (Mencegah kebocoran data sensitif) |
+| **Layer 7** | **HTTP Denial of Service (DoS)** | Endpoint login/signup bebas dihujani spam request secara beruntun tanpa batasan, rentan brute-force & kelumpuhan server. | Dibatasi oleh plugin `limit-count` APISIX. Maksimum 10 request/menit per IP. Request ke-11+ otomatis diblokir dengan **`429 Too Many Requests`**. | **BERHASIL** (Menahan serangan brute-force/flood) |
+| **Layer 6** | **Enkripsi Data (HTTP vs HTTPS)** | Komunikasi client-server menggunakan HTTP biasa (cleartext). Kredensial dan data laporan rentan disadap (Eavesdropping / MitM). | TLS Termination dilakukan di APISIX Gateway. Akses HTTP biasa (`http://localhost/`) otomatis diredirect (301) ke **`https://localhost/`** terenkripsi. | **BERHASIL** (Enkripsi end-to-end terjamin) |
+| **Layer 6** | **Server Information Leakage** | Respon HTTP membocorkan header `X-Powered-By: Next.js` dan signature server asli, mempermudah hacker mengidentifikasi target eksploitasi. | Header asli dihapus oleh APISIX. Identitas server dimasker menjadi **`Server: UPNFIX-Gateway`**. Disuntikkan security headers (`X-Frame-Options: DENY`, dll). | **BERHASIL** (Menyulitkan pengintaian/recon) |
+| **Layer 6 & 7** | **SQL Injection (SQLi)** | Form input berpotensi dieksploitasi jika query SQL dibuat menggunakan string concatenation langsung. | Validasi skema email ketat menggunakan **Joi** (`400 Bad Request`). Database menggunakan **Prepared Statements/Parameterized Queries** (`401` aman). | **BERHASIL** (Mencegah bypass login/manipulasi DB) |
+| **Layer 7** | **Observability & Monitoring** | Administrator tidak memiliki visibilitas terhadap traffic, request error, maupun status kesehatan container MySQL/App secara aktif. | Tracing HTTP direkam oleh **Apache SkyWalking** (UI Port 8080) untuk analisis performa/error. Uptime dipantau aktif oleh **Apache HertzBeat** (UI Port 1157). | **BERHASIL** (Audit log & alert aktif) |
 
 ---
 
 ### Bab 6 — Kesimpulan dan Rekomendasi
 #### 6.1 Kesimpulan
-Pengamanan berlapis menggunakan APISIX, SkyWalking, dan HertzBeat sukses melindungi sistem UPNFIX dari celah eksploitasi Layer 5-6-7 OSI. Rate limiting sukses menahan spam login, header masking berhasil melindungi identitas server Next.js, dan pembatasan role check berhasil menghentikan Broken Access Control.
+Pengamanan berlapis menggunakan APISIX, SkyWalking, HertzBeat, dan Fortress sukses melindungi sistem UPNFIX dari celah eksploitasi Layer 5-6-7 OSI. Rate limiting sukses menahan spam login, header masking berhasil melindungi identitas server Next.js, pembatasan role check berhasil menghentikan Broken Access Control, dan Fortress LDAP siap memusatkan kebijakan otorisasi.
 
 #### 6.2 Rekomendasi
 - Mengubah kredensial default admin dashboard HertzBeat (`admin`/`hertzbeat`) setelah setup guna mencegah pengambilalihan dasbor monitoring.
