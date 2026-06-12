@@ -932,6 +932,16 @@ Pengamanan berlapis menggunakan APISIX, SkyWalking, HertzBeat, dan Fortress suks
 - Mengubah kredensial default admin dashboard HertzBeat (`admin`/`hertzbeat`) setelah setup guna mencegah pengambilalihan dasbor monitoring.
 - Mengintegrasikan Web Application Firewall (WAF) seperti Coraza atau ModSecurity pada APISIX untuk Layer 7 WAF protection.
 - Menerapkan Multi-Factor Authentication (MFA) pada login administrator.
+
+### Daftar Pustaka
+1. Apache Software Foundation. (2026). *Apache APISIX Documentation*. Diakses dari https://apisix.apache.org/
+2. Apache Software Foundation. (2026). *Apache Directory Fortress Documentation*. Diakses dari https://directory.apache.org/fortress/
+3. Apache Software Foundation. (2026). *Apache SkyWalking Documentation*. Diakses dari https://skywalking.apache.org/
+4. Apache Software Foundation. (2026). *Apache HertzBeat (incubating) Documentation*. Diakses dari https://hertzbeat.apache.org/
+5. OWASP Foundation. (2021). *OWASP Top 10 Vulnerabilities*. Diakses dari https://owasp.org/www-project-top-ten/
+6. OWASP Foundation. (2023). *OWASP API Security Top 10*. Diakses dari https://owasp.org/www-project-api-security/
+7. International Organization for Standardization. (1994). *ISO/IEC 7498-1:1994 Information technology -- Open Systems Interconnection -- Basic Reference Model: The Basic Model*.
+8. Stallings, W. (2017). *Network Security Essentials: Applications and Standards*. Pearson.
 ```
 
 ---
