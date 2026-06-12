@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { loginSchema, signupSchema } from "./auth.schema";
 import { login, register } from "./auth.service";
+import { checkFortressConnectivity } from "@/lib/fortress";
 
 export async function loginHandler(request) {
   try {
@@ -18,6 +19,9 @@ export async function loginHandler(request) {
     
     // Call Service
     const { user, token } = await login(email, password);
+
+    // Verifikasi integrasi konektivitas dengan Apache Fortress LDAP
+    await checkFortressConnectivity();
 
     const response = NextResponse.json({
       message: "Login successful",
