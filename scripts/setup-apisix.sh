@@ -127,6 +127,7 @@ curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/routes/auth_login" \
     "methods": ["POST"],
     "upstream_id": "backend-nextjs",
     "plugins": {
+      "skywalking": {},
       "limit-count": {
         "count": 10,
         "time_window": 60,
@@ -164,6 +165,7 @@ curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/routes/auth_signup" \
     "methods": ["POST"],
     "upstream_id": "backend-nextjs",
     "plugins": {
+      "skywalking": {},
       "limit-count": {
         "count": 10,
         "time_window": 60,
@@ -200,6 +202,7 @@ curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/routes/api_users" \
     "methods": ["GET"],
     "upstream_id": "backend-nextjs",
     "plugins": {
+      "skywalking": {},
       "response-rewrite": {
         "headers": {
           "set": {
@@ -228,6 +231,7 @@ curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/routes/api_reports" \
     "uri": "/api/reports*",
     "upstream_id": "backend-nextjs",
     "plugins": {
+      "skywalking": {},
       "response-rewrite": {
         "headers": {
           "set": {
@@ -256,6 +260,7 @@ curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/routes/frontend_catchall" \
     "uri": "/*",
     "upstream_id": "backend-nextjs",
     "plugins": {
+      "skywalking": {},
       "cors": {
         "allow_origins": "*",
         "allow_methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS,HEAD",
@@ -279,6 +284,33 @@ curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/routes/frontend_catchall" \
     }
   }'
 echo -e "${GREEN}  ✓ Route /* (Catch-All + CORS) selesai${NC}"
+echo ""
+
+# ------------------------------------------------------------------
+# Route 6: GET /health (Gateway Health Check)
+# Returns 200 OK directly from Gateway using response-rewrite plugin
+# ------------------------------------------------------------------
+echo "  -> Membuat Route: GET /health (Gateway Health Check)"
+curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/routes/health" \
+  -H "X-API-KEY: $ADMIN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "uri": "/health",
+    "methods": ["GET"],
+    "plugins": {
+      "response-rewrite": {
+        "status_code": 200,
+        "body": "{\"status\":\"UP\",\"gateway\":\"APISIX\"}",
+        "headers": {
+          "set": {
+            "Content-Type": "application/json",
+            "Server": "UPNFIX-Gateway"
+          }
+        }
+      }
+    }
+  }'
+echo -e "${GREEN}  ✓ Route /health selesai${NC}"
 
 # =============================================================
 # SELESAI

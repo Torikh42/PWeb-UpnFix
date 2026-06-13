@@ -88,6 +88,12 @@ Untuk menjalankan seluruh tumpukan teknologi (database, aplikasi, API Gateway, d
     *   **Aplikasi Web (via Gateway):** `https://localhost` (Abaikan warning self-signed certificate di browser)
     *   **SkyWalking UI (Tracing):** `http://localhost:8080` *(Direkomendasikan buka di Jendela Penyamaran/Incognito untuk menghindari limit header cookie localhost)*
     *   **HertzBeat UI (Monitoring):** `http://localhost:1157` *(Username: `admin`, Password: `hertzbeat`)*
+        *   **Konfigurasi Target Monitoring:**
+            1. Buka **Monitor Center** -> Klik **New Monitor** (atau Add Monitor).
+            2. **Aplikasi Next.js:** Pilih jenis `WEBSITE`, isi Target Host `upnfix-app`, Port `3000`, URI `/`, HTTPS `OFF` -> Klik `Save`.
+            3. **API Gateway APISIX:** Pilih jenis `WEBSITE`, isi Target Host `apisix`, Port `9080`, URI `/health` *(wajib `/health` untuk menghindari error SSL redirect)*, HTTPS `OFF` -> Klik `Save`.
+            4. **Database MySQL:** Pilih jenis `Database` -> `MySQL`, isi Target Host `upnfix-db`, Port `3306`, Database Name `upnfix`, Username `root`, Password `root123` -> Klik `Save` *(Driver JDBC MySQL sudah otomatis terpasang via volume mount)*.
+            5. **LDAP Server (Fortress):** Pilih jenis `Service` -> `Port / Telnet`, isi Target Host `fortress-ldap`, Port `389` -> Klik `Save`.
 
 ---
 

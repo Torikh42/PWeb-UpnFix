@@ -32,94 +32,100 @@ apisix:
     cert: "/usr/local/apisix/conf/certs/cert.pem"
     key:  "/usr/local/apisix/conf/certs/key.pem"
 
-  # -------------------------------------------------------
-  # Daftar plugin yang diaktifkan
-  # Plugin yang digunakan dalam tugas UAS:
-  #   - limit-count    : Rate limiting (L7 brute-force mitigation)
-  #   - cors           : CORS policy (L7)
-  #   - response-rewrite : Header masking / security headers (L6)
-  #   - ip-restriction : IP allowlist/blocklist (L7)
-  #   - skywalking     : Distributed tracing ke SkyWalking OAP (L7)
-  #   - proxy-rewrite  : Modifikasi path/header upstream (L6/L7)
-  # -------------------------------------------------------
-  plugins:
-    - real-ip
-    - client-control
-    - ext-plugin-pre-req
-    - serverless-pre-function
-    - cors
-    - fault-injection
-    - limit-count
-    - limit-conn
-    - limit-req
-    - grpc-transcode
-    - prometheus
-    - proxy-cache
-    - batch-requests
-    - key-auth
-    - jwt-auth
-    - basic-auth
-    - bearer-token
-    - authz-casl
-    - authz-keycloak
-    - authz-casbin
-    - authz-http
-    - wolf-rbac
-    - openid-connect
-    - headersfilter
-    - request-validation
-    - response-rewrite
-    - aws-lambda
-    - azure-functions
-    - openwhisk
-    - request-id
-    - opensearch-logger
-    - splunk-hec-logging
-    - datadog
-    - file-logger
-    - skywalking
-    - error-log-logger
-    - sls-logger
-    - tcp-logger
-    - kafka-logger
-    - rocketmq-logger
-    - syslog
-    - google-cloud-logging
-    - clickhouse-logger
-    - elasticsearch-logger
-    - inspect
-    - log-rotate
-    - example-plugin
-    - gm
-    - zipkin
-    - server-info
-    - traffic-split
-    - redirect
-    - uri-blocker
-    - chaitin-waf
-    - otelcol
-    - proxy-mirror
-    - proxy-rewrite
-    - api-breaker
-    - mocking
-    - degraphql
-    - casdoor
-    - ip-restriction
-    - referer-restriction
-    - ua-restriction
-    - csrf
-    - hmac-auth
-    - session
-    - echo
-    - loggly
-    - rfc5424-syslog
-
   # mTLS Admin API (kosong = disabled untuk simulasi lokal)
   admin_api_mtls:
     admin_ssl_cert: ""
     admin_ssl_key: ""
     admin_ssl_ca_cert: ""
 
+# -------------------------------------------------------
+# Daftar plugin yang diaktifkan
+# Mengaktifkan seluruh standard plugin bawaan APISIX + skywalking
+# -------------------------------------------------------
+plugins:
+  - real-ip
+  - ai
+  - client-control
+  - proxy-control
+  - request-id
+  - zipkin
+  - ext-plugin-pre-req
+  - fault-injection
+  - mocking
+  - serverless-pre-function
+  - cors
+  - ip-restriction
+  - ua-restriction
+  - referer-restriction
+  - csrf
+  - uri-blocker
+  - request-validation
+  - chaitin-waf
+  - multi-auth
+  - openid-connect
+  - cas-auth
+  - authz-casbin
+  - authz-casdoor
+  - wolf-rbac
+  - ldap-auth
+  - hmac-auth
+  - basic-auth
+  - jwt-auth
+  - jwe-decrypt
+  - key-auth
+  - consumer-restriction
+  - forward-auth
+  - opa
+  - authz-keycloak
+  - proxy-cache
+  - body-transformer
+  - proxy-mirror
+  - proxy-rewrite
+  - workflow
+  - api-breaker
+  - limit-conn
+  - limit-count
+  - limit-req
+  - gzip
+  - server-info
+  - traffic-split
+  - redirect
+  - response-rewrite
+  - degraphql
+  - kafka-proxy
+  - grpc-transcode
+  - grpc-web
+  - http-dubbo
+  - public-api
+  - prometheus
+  - datadog
+  - loki-logger
+  - elasticsearch-logger
+  - echo
+  - loggly
+  - http-logger
+  - splunk-hec-logging
+  - skywalking-logger
+  - skywalking
+  - google-cloud-logging
+  - sls-logger
+  - tcp-logger
+  - kafka-logger
+  - rocketmq-logger
+  - syslog
+  - udp-logger
+  - file-logger
+  - clickhouse-logger
+  - tencent-cloud-cls
+  - inspect
+  - example-plugin
+  - aws-lambda
+  - azure-functions
+  - openwhisk
+  - openfunction
+  - serverless-post-function
+  - ext-plugin-post-req
+  - ext-plugin-post-resp
 # =============================================================
 # Deployment Configuration
 # Mode: traditional (APISIX + etcd pada satu deployment)

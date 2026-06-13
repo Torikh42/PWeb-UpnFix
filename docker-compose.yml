@@ -103,7 +103,7 @@ services:
     depends_on:
       - apisix-etcd
     healthcheck:
-      test: ["CMD-SHELL", "curl -f -H 'X-API-KEY: edd1y83n4039gli7' http://localhost:9180/apisix/admin/services || exit 1"]
+      test: ["CMD", "/bin/bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/9180"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -168,8 +168,10 @@ services:
     restart: always
     ports:
       - "1157:1157"
+    volumes:
+      - ./hertzbeat_libs:/opt/hertzbeat/ext-lib
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:1157 || exit 1"]
+      test: ["CMD", "/bin/bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/1157"]
       interval: 10s
       timeout: 5s
       retries: 5
