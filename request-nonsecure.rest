@@ -1,0 +1,150 @@
+# =====================================================================
+# UPNFIX API TESTING WITH REST CLIENT (BYPASS / NON-SECURE)
+# =====================================================================
+# File ini digunakan untuk mensimulasikan kondisi aplikasi "SEBELUM" 
+# dilindungi oleh Apache APISIX. Kita mengakses port 3000 secara langsung.
+# Ekspektasi: Banyak fitur keamanan L6/L7 akan GAGAL (Bypass berhasil).
+# =====================================================================
+
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+###
+# 1. Broken Access Control (BAC) Test - GET /api/users (Tanpa Login)
+# Ekspektasi: 401 Unauthorized karena tidak ada token/session cookie.
+GET {{baseUrl}}/api/users
+
+###
+# 2. Register User Baru
+# Ekspektasi: 201 Created (atau 400 Bad Request jika email sudah terdaftar).
+# Silakan ubah email di bawah jika ingin mendaftarkan user baru yang unik.
+POST {{baseUrl}}/api/auth/signup
+Content-Type: {{contentType}}
+
+{
+  "full_name": "Budi Setiawan",
+  "email": "budi@upnfix.id",
+  "password": "password123"
+}
+
+###
+# 3. Login User Biasa (Non-Admin)
+# Ekspektasi: 200 OK. Cookie token akan tersimpan secara otomatis di REST Client.
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "budi@upnfix.id",
+  "password": "password123"
+}
+
+###
+# 4. BAC Test setelah Login User Biasa - GET /api/users
+# Ekspektasi: 403 Forbidden karena user biasa tidak berhak melihat data seluruh user.
+GET {{baseUrl}}/api/users
+
+###
+# 5. Login Admin
+# Ekspektasi: 200 OK. REST Client akan mengupdate cookie token dengan token milik Admin.
+# (Gunakan email admin yang ada pada database / init-db.js)
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@upnfix.id",
+  "password": "adminpassword"
+}
+
+###
+# 6. Uji Akses Admin - GET /api/users
+# Ekspektasi: 200 OK berisi daftar seluruh user.
+GET {{baseUrl}}/api/users
+
+###
+# 7. Membuat Laporan Kerusakan Baru (Multipart Form Data dengan Upload Gambar)
+# Ekspektasi: 201 Created. Gambar akan diunggah (fallback lokal /assets/problem1.jpg).
+POST {{baseUrl}}/api/reports/create
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
+
+Kerusakan Lampu Koridor
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="description"
+
+Lampu koridor gedung FIK lantai 3 mati total sejak malam kemarin.
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="location"
+
+Gedung FIK Lantai 3
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="category"
+
+LISTRIK
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="problem1.jpg"
+Content-Type: image/jpeg
+
+< ./public/assets/problem1.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+# 8. Mendapatkan Seluruh Laporan
+# Ekspektasi: 200 OK dengan daftar seluruh laporan kerusakan.
+GET {{baseUrl}}/api/reports
+
+###
+# 9. Rate Limiting Test (Spamming L7)
+# Klik "Send Request" secara cepat 11 kali berturut-turut ke endpoint ini.
+# Ekspektasi (NON-SECURE): Selalu mengembalikan status reguler (200/400/401). Server TIDAK AKAN memblokir dengan 429. Aplikasi rentan Brute Force!
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "budi@upnfix.id",
+  "password": "salahpassword"
+}
+
+###
+# 10. Uji TLS Redirect (Presentation Layer Security - Layer 6)
+# Hit endpoint HTTP biasa (port 3000) tanpa enkripsi.
+# Ekspektasi (NON-SECURE): Mengembalikan 200 OK halaman HTML. Tidak ada redirect ke HTTPS. Lalu lintas dapat disadap (Sniffing)!
+GET http://localhost:3000/
+
+###
+# 11. Uji Request Error untuk Tracing (SkyWalking Trace - Layer 7)
+# Mengirim request ke rute yang tidak ada untuk memicu error 404.
+# Ekspektasi: Respons 404 Not Found. Request ini akan tercatat sebagai "error trace"
+#             berwarna merah di dashboard SkyWalking (http://localhost:8080).
+GET {{baseUrl}}/api/non-existent-route
+
+###
+# 12. Uji SQL Injection (Layer 6 Data Formatting & Layer 7 Input Validation)
+# Mengirimkan payload bypass login klasik: ' OR '1'='1 ke form email.
+# Ekspektasi: Respons 400 Bad Request dari backend.
+#             Hal ini dikarenakan library validasi skema input kita (Joi di Layer 7)
+#             mendeteksi string tersebut bukan format email yang valid.
+#             Jika validasi dilewati, prepared statements/parameterized queries (Layer 6)
+#             pada driver mysql2 kita tetap menganggap payload tersebut sebagai string literal biasa
+#             (bukan kode SQL executable), sehingga login tetap diblokir (401 Unauthorized) dengan aman.
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@upnfix.id' OR '1'='1",
+  "password": "apapun"
+}
+
+###
+# =====================================================================
+# SIMULASI MONITORING & ALERTING (HertzBeat - Layer 7)
+# =====================================================================
+# Skenario: Simulasi Service Down
+# Langkah:
+#   1. Jalankan di terminal host Anda: "docker compose stop upnfix-app"
+#   2. Buka dashboard HertzBeat di http://localhost:1157.
+#   3. Ekspektasi: Status monitor "upnfix-app" akan berubah merah (Down),
+#      dan alert/peringatan sistem down akan muncul di tab Alerts.
+#   4. Nyalakan kembali: "docker compose up -d"
+# =====================================================================

@@ -55,6 +55,8 @@ services:
     depends_on:
       upnfix-db:
         condition: service_healthy
+    ports:
+      - "3000:3000"     # EXPOSED untuk bypass testing (Before Apache)
     entrypoint: >
       sh -c "
         echo '=== UPNFIX: Initializing database schema...' &&
