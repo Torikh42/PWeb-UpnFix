@@ -102,25 +102,35 @@ Untuk menjalankan seluruh tumpukan teknologi (database, aplikasi, API Gateway, d
 Kami telah mempermudah proses evaluasi dengan menyediakan metode pengujian manual dan otomatis:
 
 ### A. Pengujian Otomatis (Automated Testing)
-Skrip otomatis menggunakan `curl` untuk menguji **9 skenario keamanan** pada Layer 5, 6, dan 7 OSI (termasuk Broken Access Control, SQL Injection, dan DDoS Rate Limiting).
+Kami menyediakan 2 skrip otomatis (berbasis `curl`) untuk mendemonstrasikan kondisi *Before* dan *After* penerapan API Gateway.
 
 **Cara menjalankan:**
 1. Buka terminal **Git Bash** di root proyek ini.
-2. Jalankan perintah:
+2. Untuk menguji kondisi **AFTER** (Sistem Aman / Lewat Apache APISIX Port 443):
    ```bash
    bash scripts/run-tests.sh
    ```
-3. Skrip akan menampilkan laporan visual hijau `[PASS]` / merah `[FAIL]` untuk setiap celah keamanan.
+   *(Ekspektasi: Seluruh 9 Test akan `[PASS]` berwarna hijau).*
+
+3. Untuk menguji kondisi **BEFORE** (Sistem Rentan / Bypass Langsung ke Next.js Port 3000):
+   ```bash
+   bash scripts/run-tests-bypass.sh
+   ```
+   *(Ekspektasi: Ditemukan celah kerentanan `[FAIL]` berwarna merah pada TLS dan Rate Limiting).*
 
 ### B. Pengujian Manual (REST Client)
-Anda dapat melakukan uji coba satu per satu secara manual menggunakan file **[request.rest](file:///d:/PWeb-UpnFix/request.rest)**:
+Anda dapat melakukan uji coba satu per satu secara manual menggunakan ekstensi **REST Client** di VS Code. Kami telah memisahkan file pengujian untuk perbandingan yang lebih baik:
 
+1. **[request-secure.rest](file:///d:/PWeb-UpnFix/request-secure.rest)**: Untuk pengujian sistem **Aman** melalui jalur APISIX (HTTPS).
+2. **[request-nonsecure.rest](file:///d:/PWeb-UpnFix/request-nonsecure.rest)**: Untuk pengujian sistem **Rentan** melalui akses bypass (HTTP Port 3000).
+
+**Langkah Pengujian:**
 1. Install ekstensi **REST Client** di VS Code.
 2. Konfigurasikan VS Code untuk mengabaikan error SSL localhost:
    * Buka VS Code *Settings* (`Ctrl + ,`).
    * Cari: `Rest-client: Exclude Hosts For SSL Verification`.
    * Klik *Add Item* dan masukkan `localhost`.
-3. Buka file [request.rest](file:///d:/PWeb-UpnFix/request.rest) dan klik **"Send Request"** di atas method HTTP yang ingin diuji.
+3. Buka salah satu file `.rest` di atas dan klik **"Send Request"** di atas method HTTP yang ingin diuji.
 
 ---
 
