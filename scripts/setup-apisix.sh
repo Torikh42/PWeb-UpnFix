@@ -248,17 +248,43 @@ echo -e "${GREEN}  ✓ Route /api/reports* selesai${NC}"
 echo ""
 
 # ------------------------------------------------------------------
-# Route 5: Catch-All Frontend + Global CORS
-# Plugin: cors, response-rewrite, skywalking
-# Menangani semua request frontend Next.js dan preflight CORS
+# Route 5a: HTTP Redirect (Hanya untuk request HTTP)
+# Mencegah redirect loop dengan membatasi skema hanya untuk "http"
 # ------------------------------------------------------------------
-echo "  -> Membuat Route: /* (Catch-All + CORS)"
+echo "  -> Membuat Route: /* (HTTP Redirect ke HTTPS)"
+curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/routes/frontend_redirect" \
+  -H "X-API-KEY: $ADMIN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "uri": "/*",
+    "vars": [
+      ["scheme", "==", "http"]
+    ],
+    "plugins": {
+      "redirect": {
+        "uri": "https://$host$request_uri",
+        "ret_code": 301
+      }
+    }
+  }'
+echo -e "${GREEN}  ✓ Route / (HTTP Redirect) selesai${NC}"
+echo ""
+
+# ------------------------------------------------------------------
+# Route 5b: Catch-All Frontend HTTPS (Hanya untuk request HTTPS)
+# Plugin: cors, response-rewrite, skywalking
+# Menangani semua request frontend Next.js dan preflight CORS secara aman
+# ------------------------------------------------------------------
+echo "  -> Membuat Route: /* (Catch-All HTTPS + CORS)"
 curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/routes/frontend_catchall" \
   -H "X-API-KEY: $ADMIN_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "uri": "/*",
     "upstream_id": "backend-nextjs",
+    "vars": [
+      ["scheme", "==", "https"]
+    ],
     "plugins": {
       "skywalking": {},
       "cors": {
@@ -267,9 +293,6 @@ curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/routes/frontend_catchall" \
         "allow_headers": "Content-Type,Authorization,Cookie",
         "expose_headers": "Content-Length,Access-Control-Allow-Origin,Access-Control-Allow-Credentials",
         "max_age": 5
-      },
-      "redirect": {
-        "http_to_https": true
       },
       "response-rewrite": {
         "headers": {
@@ -283,7 +306,7 @@ curl -s -X PUT "$APISIX_ADMIN_URL/apisix/admin/routes/frontend_catchall" \
       }
     }
   }'
-echo -e "${GREEN}  ✓ Route /* (Catch-All + CORS) selesai${NC}"
+echo -e "${GREEN}  ✓ Route /* (HTTPS Catch-All) selesai${NC}"
 echo ""
 
 # ------------------------------------------------------------------
