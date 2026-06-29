@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 # Docker env (berisi secret, jangan di-commit)
 # .env.docker — EXCLUDE dari git, gunakan .env.docker.example sebagai template
 
