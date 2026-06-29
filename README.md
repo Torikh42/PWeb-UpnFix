@@ -1,5 +1,11 @@
 # UPNFIX - Aplikasi Pelaporan Fasilitas Kampus
 
+## Laporan Resmi UAS Keamanan Jaringan
+Laporan lengkap mengenai perancangan, analisis, dan pengujian sistem keamanan Layer 5-6-7 OSI pada UPNFIX dapat diakses langsung pada berkas:
+📄 **[UAS_Kel7_Laporan_KeamananJaringan.pdf](file:///d:/PWeb-UpnFix/UAS_Kel7_Laporan_KeamananJaringan.pdf)** (Tersedia di root repositori ini).
+
+---
+
 UPNFIX adalah sebuah platform pelaporan berbasis web yang dirancang untuk memudahkan mahasiswa dan staf di lingkungan UPN "Veteran" Jakarta melaporkan berbagai masalah terkait fasilitas kampus. Mulai dari kerusakan infrastruktur, masalah kebersihan, hingga saran perbaikan, semua dapat dilaporkan dengan mudah melalui aplikasi ini. Laporan yang masuk akan dikelola oleh administrator untuk ditindaklanjuti, menciptakan lingkungan kampus yang lebih baik, responsif, dan terawat.
 
 ## Memulai
@@ -31,17 +37,19 @@ Petunjuk ini akan membantu Anda menjalankan salinan proyek di mesin lokal untuk 
 
 3.  **Siapkan variabel lingkungan**
 
-    Buat berkas `.env.local` di direktori utama proyek dan tambahkan variabel lingkungan berikut. Anda dapat menyalin dari berkas `.env.example` jika ada.
+    Salin berkas `.env.example` menjadi `.env` di direktori utama proyek dan lengkapi nilainya:
 
+    ```bash
+    cp .env.example .env
     ```
-    DB_HOST=
-    DB_USER=
-    DB_PASSWORD=
-    DB_NAME=
-    JWT_SECRET=
-    CLOUDINARY_CLOUD_NAME=
-    CLOUDINARY_API_KEY=
-    CLOUDINARY_API_SECRET=
+
+    Variabel lingkungan utama yang dibutuhkan meliputi:
+    ```env
+    DATABASE_URL=mysql://username:password@localhost:3306/database_name
+    JWT_SECRET=your_jwt_secret_key_here
+    CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+    CLOUDINARY_API_KEY=your_cloudinary_api_key
+    CLOUDINARY_API_SECRET=your_cloudinary_api_secret
     ```
 
 4.  **Inisialisasi basis data**
